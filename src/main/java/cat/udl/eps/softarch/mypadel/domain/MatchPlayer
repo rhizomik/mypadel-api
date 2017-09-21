@@ -1,0 +1,40 @@
+package cat.udl.eps.softarch.mypadel.domain;
+
+import java.util.List;
+
+public class MatchResult extends UriEntity<Integer> {
+
+    private int id;
+    private List<Player> winingPair;
+    private List<Player> loosingPair;
+    private boolean isDraw;
+
+    @Override
+    public Integer getId() {
+        return this.id;
+    }
+
+    public List<Player> getWiningPair() {
+        return this.winingPair;
+    }
+
+    public void setWiningPair(List<Player> winingPair) {
+        this.winingPair = winingPair;
+    }
+
+    public List<Player> getLoosingPair() {
+        return this.loosingPair;
+    }
+
+    public void setLoosingPair(List<Player> loosingPair) {
+        this.loosingPair = loosingPair;
+    }
+
+    public boolean isDraw() {
+        return this.isDraw;
+    }
+
+    public void setDraw(boolean draw) {
+        this.isDraw = draw;
+    }
+}
