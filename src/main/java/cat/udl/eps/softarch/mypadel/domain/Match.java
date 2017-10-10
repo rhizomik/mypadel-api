@@ -30,6 +30,8 @@ public class Match extends UriEntity<Long> {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private ZonedDateTime cancelationDeadline;
 
+    private Player matchCreator = null;
+
     @Override
     public Long getId() {
         return id;
@@ -66,4 +68,12 @@ public class Match extends UriEntity<Long> {
     public void setCancelationDeadline(ZonedDateTime cancelationDeadline) {
         this.cancelationDeadline = cancelationDeadline;
     }
+
+	public Player getMatchCreator() {
+		return matchCreator;
+	}
+
+	public void setMatchCreator(Player matchCreator) {
+		this.matchCreator = matchCreator;
+	}
 }
