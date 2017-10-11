@@ -25,10 +25,8 @@ public class Reservation extends UriEntity<Long> {
 	@NotNull
 	private Duration duration;
 
-
 	@NotNull
 	private CourtType courtType;
-
 
 	@Override
 	public Long getId() {

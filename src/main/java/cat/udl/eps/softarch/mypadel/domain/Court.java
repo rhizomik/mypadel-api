@@ -19,7 +19,6 @@ public class Court extends UriEntity<String> {
 	@NotNull
 	private boolean isIndoor;
 
-
 	@Override
 	public String getId() {
 		return String.valueOf(id);

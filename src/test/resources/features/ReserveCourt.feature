@@ -9,7 +9,6 @@ Feature: Reserve a court
 		Then The response code is 201
 		And The reservation is created on 8 - 10 - 2017 for 60 minutes with CourtType "INDOOR"
 
-
 	Scenario: Reserve a court
 		Given I'm not logged in
 		When I make a reservation on 8 - 10 - 2017 for 60 minutes with CourtType "INDOOR"
