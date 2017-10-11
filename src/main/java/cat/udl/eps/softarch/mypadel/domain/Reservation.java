@@ -11,52 +11,51 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 
 
-
 @Entity
-public class Reservation extends  UriEntity<Long> {
+public class Reservation extends UriEntity<Long> {
 
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private ZonedDateTime startDate;
+	private ZonedDateTime startDate;
 
-    @NotNull
-    private Duration duration;
-
-
-    @NotNull
-    private CourtType courtType;
+	@NotNull
+	private Duration duration;
 
 
-    @Override
-    public Long getId() {
-        return id;
-    }
+	@NotNull
+	private CourtType courtType;
 
-    public ZonedDateTime getStartDate(){
-        return startDate;
-    }
 
-    public void setStartDate(ZonedDateTime startDate){
-        this.startDate=startDate;
-    }
+	@Override
+	public Long getId() {
+		return id;
+	}
 
-    public Duration getDuration(){
-        return duration;
-    }
+	public ZonedDateTime getStartDate() {
+		return startDate;
+	}
 
-    public void setDuration(Duration duration){
-        this.duration=duration;
-    }
+	public void setStartDate(ZonedDateTime startDate) {
+		this.startDate = startDate;
+	}
 
-    public CourtType getCourtType(){
-        return courtType;
-    }
+	public Duration getDuration() {
+		return duration;
+	}
 
-    public void setCourtType(CourtType court){
-        this.courtType=court;
-    }
+	public void setDuration(Duration duration) {
+		this.duration = duration;
+	}
+
+	public CourtType getCourtType() {
+		return courtType;
+	}
+
+	public void setCourtType(CourtType court) {
+		this.courtType = court;
+	}
 }
