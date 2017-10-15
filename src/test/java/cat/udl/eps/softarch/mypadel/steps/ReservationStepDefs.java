@@ -32,8 +32,7 @@ public class ReservationStepDefs {
 	@Autowired
 	private CourtRepository courtRepository;
 
-	private CourtType courtType;
-	private final Court court = new Court();
+	private Court court = new Court();
 	private Reservation reservation;
 	private boolean isIndoor;
 
@@ -130,6 +129,23 @@ public class ReservationStepDefs {
 
 	@And("^The court is assigned to the reservation$")
 	public void theCourtIsAssignedToTheReservation() throws Throwable {
-		throw new PendingException();
+		stepDefs.result = stepDefs.mockMvc.perform(
+			get("/reservations/1/")
+				.accept(MediaType.APPLICATION_JSON)
+				.with(authenticate()))
+			.andExpect(jsonPath("$.duration", is(reservation.getDuration().toString())))
+			.andExpect(jsonPath("$.startDate", is(parseData(reservation.getStartDate().toString()))))
+			.andExpect(jsonPath("$.courtType", is(reservation.getCourtType().toString())))
+		.andDo(print());
+
+		/*
+		stepDefs.result = stepDefs.mockMvc.perform(
+			get("/reservations/1/courtS")
+				.accept(MediaType.APPLICATION_JSON)
+				.with(authenticate()))
+			.andExpect(jsonPath("$.available", is(court.isAvailable())))
+			.andExpect(jsonPath("$.isIndoor", is(court.isIndoor())))
+		.andDo(print());
+		*/
 	}
 }

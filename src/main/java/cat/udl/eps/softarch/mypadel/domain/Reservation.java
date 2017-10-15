@@ -1,5 +1,6 @@
 package cat.udl.eps.softarch.mypadel.domain;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ public class Reservation extends UriEntity<Long> {
 	private CourtType courtType;
 
 	@ManyToOne
+	@JsonIdentityReference(alwaysAsId = true)
 	private Court court;
 
 	@Override
