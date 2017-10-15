@@ -52,11 +52,12 @@ class CustomMatch <<Match>> extends Match {
 class MatchJoin <<Match>> {
     Datetime eventDate
 }
-MatchJoin "many joins" -- "1 joinedUser" User
+MatchJoin "many joins" -- "1 joinedUser" Player
 MatchJoin "1..4 playerJoins" -- "1 toMatch" Match
 
 class MatchInvitation <<Match>> {
     Datetime eventDate
+    String message
 }
 MatchInvitation "many creator" -- "1 createdBy" User
 MatchInvitation "many invitations" -- "1 invites" Player
@@ -67,13 +68,13 @@ class MatchResult <<MatchResult>> {
     List<Player> loosingPair
     Boolean isDraw;
 }
-MatchResult "many submits" -- "1 submittedBy" User
+MatchResult "many submits" -- "1 submittedBy" Player
 MatchResult "0..1 result" -- "1 for" Match
 
 class MatchResultVerification <<MatchResult>> {
     Boolean agrees
 }
-MatchResultVerification "many verifies" -- "1 verifiedBy" User
+MatchResultVerification "many verifies" -- "1 verifiedBy" Player
 MatchResultVerification "1..4 verifications" -- "1 verifies" MatchResult
 
 class Reservation <<Reservation>> {
@@ -89,5 +90,13 @@ class Court <<Court>> {
     Boolean available
 }
 Court "1 for" -- "many reservations" Reservation
+
+class MatchJoinRequest <<Match>> {
+	Datetime eventDate
+	String message
+}
+
+MatchJoinRequest "many requests" -- "1 requester" Player
+MatchJoinRequest "many requesters" -- "1 toJoin" CustomMatch
 
 @enduml
