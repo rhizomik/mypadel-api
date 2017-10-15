@@ -1,8 +1,10 @@
 package cat.udl.eps.softarch.mypadel.steps;
 
 
+import cat.udl.eps.softarch.mypadel.domain.Court;
 import cat.udl.eps.softarch.mypadel.domain.CourtType;
 import cat.udl.eps.softarch.mypadel.domain.Reservation;
+import cat.udl.eps.softarch.mypadel.repository.CourtRepository;
 import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
@@ -23,10 +25,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class ReservationStepDefs {
 
+	public static final String INDOOR = "indoor";
 	@Autowired
 	private StepDefs stepDefs;
 	private ZonedDateTime startdate;
 	private Duration duration;
+	@Autowired
+	private CourtRepository courtRepository;
 
 	private CourtType courtType;
 
@@ -102,9 +107,12 @@ public class ReservationStepDefs {
 	}
 
 	@And("^There is an available court with CourtType \"([^\"]*)\"$")
-	public void thereIsAnAvailableCourtWithCourtType(String arg0) throws Throwable {
-		// Write code here that turns the phrase above into concrete actions
-		throw new PendingException();
+	public void thereIsAnAvailableCourtWithCourtType(String courtType) throws Throwable {
+		boolean isIndoor = courtType.equalsIgnoreCase(INDOOR);
+		Court court = new Court();
+		court.setIndoor(isIndoor);
+		court.setAvailable(true);
+		courtRepository.save(court);
 	}
 
 	@When("^I assign the court to the reservation$")
