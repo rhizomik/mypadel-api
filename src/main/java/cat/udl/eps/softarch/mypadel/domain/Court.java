@@ -1,10 +1,8 @@
 package cat.udl.eps.softarch.mypadel.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 public class Court extends UriEntity<String> {
@@ -18,6 +16,9 @@ public class Court extends UriEntity<String> {
 
 	@NotNull
 	private boolean isIndoor;
+
+	@OneToMany(mappedBy = "court")
+	private List<Reservation> reservations;
 
 	@Override
 	public String getId() {
@@ -40,5 +41,11 @@ public class Court extends UriEntity<String> {
 		isIndoor = indoor;
 	}
 
+	public List<Reservation> getReservations() {
+		return reservations;
+	}
 
+	public void setReservations(List<Reservation> reservations) {
+		this.reservations = reservations;
+	}
 }

@@ -17,8 +17,7 @@ import java.time.ZonedDateTime;
 
 import static cat.udl.eps.softarch.mypadel.steps.AuthenticationStepDefs.authenticate;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,10 +33,13 @@ public class ReservationStepDefs {
 	private CourtRepository courtRepository;
 
 	private CourtType courtType;
+	private final Court court = new Court();
+	private Reservation reservation;
+	private boolean isIndoor;
 
 	@When("^I make a reservation on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
 	public void iMakeAReservationOnForMinutesWithCourtType(int day, int month, int year, int duration, String courtType) throws Throwable {
-		Reservation reservation = makeNewReservation(day, month, year, duration, courtType);
+		reservation = makeNewReservation(day, month, year, duration, courtType);
 
 		createReservation(reservation);
 	}
@@ -47,7 +49,7 @@ public class ReservationStepDefs {
 			0, ZoneId.of("+00:00"));
 		this.duration = Duration.ofMinutes(duration);
 
-		Reservation reservation = new Reservation();
+		reservation = new Reservation();
 		reservation.setStartDate(startdate);
 		reservation.setDuration(this.duration);
 		reservation.setCourtType(CourtType.valueOf(courtType));
@@ -108,8 +110,7 @@ public class ReservationStepDefs {
 
 	@And("^There is an available court with CourtType \"([^\"]*)\"$")
 	public void thereIsAnAvailableCourtWithCourtType(String courtType) throws Throwable {
-		boolean isIndoor = courtType.equalsIgnoreCase(INDOOR);
-		Court court = new Court();
+		isIndoor = courtType.equalsIgnoreCase(INDOOR);
 		court.setIndoor(isIndoor);
 		court.setAvailable(true);
 		courtRepository.save(court);
@@ -117,13 +118,18 @@ public class ReservationStepDefs {
 
 	@When("^I assign the court to the reservation$")
 	public void iAssignTheCourtToTheReservation() throws Throwable {
-		// Write code here that turns the phrase above into concrete actions
-		throw new PendingException();
+		reservation.setCourt(court);
+		String message = stepDefs.mapper.writeValueAsString(reservation);
+		stepDefs.result = stepDefs.mockMvc.perform(
+			put("/reservations/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(message)
+				.accept(MediaType.APPLICATION_JSON)
+				.with(authenticate()));
 	}
 
 	@And("^The court is assigned to the reservation$")
 	public void theCourtIsAssignedToTheReservation() throws Throwable {
-		// Write code here that turns the phrase above into concrete actions
 		throw new PendingException();
 	}
 }

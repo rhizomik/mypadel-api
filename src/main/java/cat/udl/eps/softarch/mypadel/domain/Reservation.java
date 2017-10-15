@@ -2,10 +2,7 @@ package cat.udl.eps.softarch.mypadel.domain;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -27,6 +24,9 @@ public class Reservation extends UriEntity<Long> {
 
 	@NotNull
 	private CourtType courtType;
+
+	@ManyToOne
+	private Court court;
 
 	@Override
 	public Long getId() {
@@ -55,5 +55,14 @@ public class Reservation extends UriEntity<Long> {
 
 	public void setCourtType(CourtType court) {
 		this.courtType = court;
+	}
+
+
+	public Court getCourt() {
+		return court;
+	}
+
+	public void setCourt(Court court) {
+		this.court = court;
 	}
 }
