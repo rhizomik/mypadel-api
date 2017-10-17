@@ -31,7 +31,7 @@ public class ReservationStepDefs {
 	@Autowired
 	private CourtRepository courtRepository;
 
-	private ZonedDateTime startdate;
+	private ZonedDateTime startDate;
 	private Duration duration;
 	private Integer reservationId = 1;
 
@@ -51,14 +51,14 @@ public class ReservationStepDefs {
 		setFormatedDateAndDuration(day, month, year, duration);
 
 		Reservation reservation = new Reservation();
-		reservation.setStartDate(startdate);
+		reservation.setStartDate(startDate);
 		reservation.setDuration(this.duration);
 		reservation.setCourtType(CourtType.valueOf(courtType));
 		return reservation;
 	}
 
 	private void setFormatedDateAndDuration(int day, int month, int year, int duration) {
-		this.startdate = ZonedDateTime.of(year, month, day, 0, 0, 0,
+		this.startDate = ZonedDateTime.of(year, month, day, 0, 0, 0,
 			0, ZoneId.of("+00:00"));
 		this.duration = Duration.ofMinutes(duration);
 	}
@@ -86,7 +86,7 @@ public class ReservationStepDefs {
 				.with(authenticate()))
 			.andExpect(jsonPath("$.id", is(reservationId)))
 			.andExpect(jsonPath("$.duration", is(this.duration.toString())))
-			.andExpect(jsonPath("$.startDate", is(parseDate(startdate.toString()))))
+			.andExpect(jsonPath("$.startDate", is(parseDate(startDate.toString()))))
 			.andExpect(jsonPath("$.courtType", is(courtType)))
 			.andDo(print());
 
