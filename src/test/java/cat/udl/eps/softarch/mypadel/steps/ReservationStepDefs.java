@@ -5,10 +5,10 @@ import cat.udl.eps.softarch.mypadel.domain.Court;
 import cat.udl.eps.softarch.mypadel.domain.CourtType;
 import cat.udl.eps.softarch.mypadel.domain.Reservation;
 import cat.udl.eps.softarch.mypadel.repository.CourtRepository;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.RestMediaTypes;
 import org.springframework.http.MediaType;
 
 import java.time.Duration;
@@ -117,35 +117,24 @@ public class ReservationStepDefs {
 
 	@When("^I assign the court to the reservation$")
 	public void iAssignTheCourtToTheReservation() throws Throwable {
-		reservation.setCourt(court);
-		String message = stepDefs.mapper.writeValueAsString(reservation);
+		String message = "/courts/1";
 		stepDefs.result = stepDefs.mockMvc.perform(
-			put("/reservations/1")
-				.contentType(MediaType.APPLICATION_JSON)
+			put("/reservations/1/court")
+				.contentType(RestMediaTypes.TEXT_URI_LIST)
 				.content(message)
-				.accept(MediaType.APPLICATION_JSON)
-				.with(authenticate()));
+				.with(authenticate()))
+			.andDo(print());
 	}
 
 	@And("^The court is assigned to the reservation$")
 	public void theCourtIsAssignedToTheReservation() throws Throwable {
-		stepDefs.result = stepDefs.mockMvc.perform(
-			get("/reservations/1/")
-				.accept(MediaType.APPLICATION_JSON)
-				.with(authenticate()))
-			.andExpect(jsonPath("$.duration", is(reservation.getDuration().toString())))
-			.andExpect(jsonPath("$.startDate", is(parseData(reservation.getStartDate().toString()))))
-			.andExpect(jsonPath("$.courtType", is(reservation.getCourtType().toString())))
-		.andDo(print());
-
-		/*
-		stepDefs.result = stepDefs.mockMvc.perform(
-			get("/reservations/1/courtS")
+		stepDefs.mockMvc.perform(
+			get("/reservations/1/court")
 				.accept(MediaType.APPLICATION_JSON)
 				.with(authenticate()))
 			.andExpect(jsonPath("$.available", is(court.isAvailable())))
-			.andExpect(jsonPath("$.isIndoor", is(court.isIndoor())))
-		.andDo(print());
-		*/
+			.andExpect(jsonPath("$.indoor", is(court.isIndoor())))
+			.andDo(print());
+
 	}
 }
