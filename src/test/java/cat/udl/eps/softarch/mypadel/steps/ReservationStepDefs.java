@@ -35,13 +35,11 @@ public class ReservationStepDefs {
 	private CourtRepository courtRepository;
 
 	private Court court = new Court();
-	private Reservation reservation;
-	private boolean isIndoor;
 	private final int id = 1;
 
 	@When("^I make a reservation on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
 	public void iMakeAReservationOnForMinutesWithCourtType(int day, int month, int year, int duration, String courtType) throws Throwable {
-		reservation = makeNewReservation(day, month, year, duration, courtType);
+		Reservation reservation = makeNewReservation(day, month, year, duration, courtType);
 
 		createReservation(reservation);
 	}
@@ -51,7 +49,7 @@ public class ReservationStepDefs {
 			0, ZoneId.of("+00:00"));
 		this.duration = Duration.ofMinutes(duration);
 
-		reservation = new Reservation();
+		Reservation reservation = new Reservation();
 		reservation.setStartDate(startdate);
 		reservation.setDuration(this.duration);
 		reservation.setCourtType(CourtType.valueOf(courtType));
@@ -109,7 +107,7 @@ public class ReservationStepDefs {
 
 	@And("^There is an available court with CourtType \"([^\"]*)\"$")
 	public void thereIsAnAvailableCourtWithCourtType(String courtType) throws Throwable {
-		isIndoor = courtType.equalsIgnoreCase(INDOOR);
+		boolean isIndoor = courtType.equalsIgnoreCase(INDOOR);
 		court.setIndoor(isIndoor);
 		court.setAvailable(true);
 		courtRepository.save(court);
