@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 
 @Component
-@RepositoryEventHandler(Admin.class)
+@RepositoryEventHandler
 public class AdminEventHandler {
     final Logger logger = LoggerFactory.getLogger(Admin.class);
 

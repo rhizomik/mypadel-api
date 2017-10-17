@@ -35,8 +35,8 @@ of their same padel level. Additionally, they do not have to worry about reservi
 | Accept invitation to match    | Create court                  |
 |                               | Remove court                  |
 |                               | Create player                 |
-|                               | Remove player                 |               |
+|                               | Remove player                 |
 
 ## Entities Model
 
-![Entities Model Diagram](http://www.plantuml.com/plantuml/svg/3Sen3e0W3030h-W3eBkRWvk3YV4125L8A93InlXxNIytfkAp1bJEGnHfVG9WzzWxITHJExAlHR28zPNW2AjPjjtizPAPVGHwcmkOZMi9o7L1XlycUGtLtsrJoXy0)
+![Entities Model Diagram](http://www.plantuml.com/plantuml/svg/3Sen3e0W3030h-W3eBkRWvk3YV4125L8A93InlXxNIytfkAp1bJEGnHfVG9WzzWxITHJExAlHR28zPNW2AjPjjtizPAPVGHwcmkOZMi9o7L1XlycUGtLtsrJoXy0?0)
