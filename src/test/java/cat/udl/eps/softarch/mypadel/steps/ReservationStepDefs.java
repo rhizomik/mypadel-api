@@ -151,7 +151,6 @@ public class ReservationStepDefs {
 
 	@And("^The court is not assigned to the reservation$")
 	public void theCourtIsNotAssignedToTheReservation() throws Throwable {
-		Court court = courtRepository.findOne(1);
 		stepDefs.mockMvc.perform(
 			get(RESERVATIONS_URI + "/{id}/court", reservationId)
 				.accept(MediaType.APPLICATION_JSON))
