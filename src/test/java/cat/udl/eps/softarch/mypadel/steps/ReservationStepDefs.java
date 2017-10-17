@@ -1,8 +1,10 @@
 package cat.udl.eps.softarch.mypadel.steps;
 
 
+import cat.udl.eps.softarch.mypadel.domain.Court;
 import cat.udl.eps.softarch.mypadel.domain.CourtType;
 import cat.udl.eps.softarch.mypadel.domain.Reservation;
+import cat.udl.eps.softarch.mypadel.repository.CourtRepository;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,31 +24,49 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class ReservationStepDefs {
 
+
 	@Autowired
 	private StepDefs stepDefs;
-	private ZonedDateTime startdate;
-	private Duration duration;
 
-	private CourtType courtType;
+	@Autowired
+	private CourtRepository courtRepository;
+
+	private ZonedDateTime startDate;
+	private Duration duration;
+	private Integer reservationId = 1;
+
+	public static final String INDOOR = "indoor";
+	public static final String RESERVATIONS_URI = "/reservations";
 
 	@When("^I make a reservation on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
-	public void iMakeAReservationOnForMinutesWithCourtType(int day, int month, int year, int duration, String courtType) throws Throwable {
-		this.startdate = ZonedDateTime.of(year, month, day, 0, 0, 0,
-			0, ZoneId.of("+00:00"));
-		this.duration = Duration.ofMinutes(duration);
-
-		Reservation reservation = new Reservation();
-		reservation.setStartDate(startdate);
-		reservation.setDuration(this.duration);
-		reservation.setCourtType(CourtType.valueOf(courtType));
-
+	public void iMakeAReservationOnForMinutesWithCourtType(int day, int month, int year,
+														   int duration,
+														   String courtType) throws Throwable {
+		Reservation reservation = makeNewReservation(day, month, year, duration, courtType);
 		createReservation(reservation);
 	}
 
-	private void createReservation(Reservation reservation)throws Throwable {
-		String message =stepDefs.mapper.writeValueAsString(reservation);
+	private Reservation makeNewReservation(int day, int month, int year, int duration, String courtType) {
+
+		setFormatedDateAndDuration(day, month, year, duration);
+
+		Reservation reservation = new Reservation();
+		reservation.setStartDate(startDate);
+		reservation.setDuration(this.duration);
+		reservation.setCourtType(CourtType.valueOf(courtType));
+		return reservation;
+	}
+
+	private void setFormatedDateAndDuration(int day, int month, int year, int duration) {
+		this.startDate = ZonedDateTime.of(year, month, day, 0, 0, 0,
+			0, ZoneId.of("+00:00"));
+		this.duration = Duration.ofMinutes(duration);
+	}
+
+	private void createReservation(Reservation reservation) throws Throwable {
+		String message = stepDefs.mapper.writeValueAsString(reservation);
 		stepDefs.result = stepDefs.mockMvc.perform(
-			post("/reservations")
+			post(RESERVATIONS_URI)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(message)
 				.accept(MediaType.APPLICATION_JSON)
@@ -56,35 +76,50 @@ public class ReservationStepDefs {
 
 
 	@And("^The reservation is created on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
-	public void theReservationIsCreatedOnForMinutesWithCourtType(int day, int month, int year, int duration, String courtType) throws Throwable {
-		int id = 1;
-
-		startdate = ZonedDateTime.of(year, month, day, 0, 0, 0,
-			0, ZoneId.of("+00:00"));
-		this.duration = Duration.ofMinutes(duration);
-
+	public void theReservationIsCreatedOnForMinutesWithCourtType(int day, int month, int year,
+																 int duration,
+																 String courtType) throws Throwable {
+		setFormatedDateAndDuration(day, month, year, duration);
 		stepDefs.result = stepDefs.mockMvc.perform(
-			get("/reservations/{id}",id)
+			get(RESERVATIONS_URI + "/{id}", reservationId)
 				.accept(MediaType.APPLICATION_JSON)
 				.with(authenticate()))
-			.andDo(print())
-			.andExpect(jsonPath("$.id",is(id)))
+			.andExpect(jsonPath("$.id", is(reservationId)))
 			.andExpect(jsonPath("$.duration", is(this.duration.toString())))
-			.andExpect(jsonPath("$.startDate", is(parseData(startdate.toString()))))
-			.andExpect(jsonPath("$.courtType", is(courtType)));
+			.andExpect(jsonPath("$.startDate", is(parseDate(startDate.toString()))))
+			.andExpect(jsonPath("$.courtType", is(courtType)))
+			.andDo(print());
 
 	}
 
-	private String parseData(String data){
-		String[] parts = data.split(":");
-		return parts[0] + ":00:00" + data.substring(data.length()-1);
+	private String parseDate(String date) {
+		String[] parts = date.split(":");
+		return parts[0] + ":00:00" + date.substring(date.length() - 1);
 	}
 
 	@And("^The reservation can't be created$")
 	public void theReservationCanTBeCreated() throws Throwable {
 		stepDefs.result = stepDefs.mockMvc.perform(
-			get("/reservations/1")
+			get(RESERVATIONS_URI + "/{id}", reservationId)
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isNotFound());
 	}
+
+	@And("^There is a reservation on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
+	public void thereIsAReservationOnForMinutesWithCourtType(int day, int month, int year,
+															 int duration,
+															 String courtType) throws Throwable {
+		Reservation reservation = makeNewReservation(day, month, year, duration, courtType);
+		createReservation(reservation);
+	}
+
+	@And("^There is an available court with CourtType \"([^\"]*)\"$")
+	public void thereIsAnAvailableCourtWithCourtType(String courtType) throws Throwable {
+		Court court = new Court();
+		boolean isIndoor = courtType.equalsIgnoreCase(INDOOR);
+		court.setIndoor(isIndoor);
+		court.setAvailable(true);
+		courtRepository.save(court);
+	}
+
 }
