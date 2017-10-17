@@ -27,15 +27,13 @@ public class ReservationStepDefs {
 
 	@Autowired
 	private StepDefs stepDefs;
-	private ZonedDateTime startdate;
-	private Duration duration;
 
 	@Autowired
 	private CourtRepository courtRepository;
 
-	//	private Court court = new Court();
-	private final int reservationId = 1;
-	//	private final int id = 1;
+	private ZonedDateTime startdate;
+	private Duration duration;
+	private Integer reservationId = 1;
 
 	private static final String INDOOR = "indoor";
 	private static final String RESERVATIONS_URI = "/reservations";
@@ -46,20 +44,24 @@ public class ReservationStepDefs {
 														   int duration,
 														   String courtType) throws Throwable {
 		Reservation reservation = makeNewReservation(day, month, year, duration, courtType);
-
 		createReservation(reservation);
 	}
 
 	private Reservation makeNewReservation(int day, int month, int year, int duration, String courtType) {
-		this.startdate = ZonedDateTime.of(year, month, day, 0, 0, 0,
-			0, ZoneId.of("+00:00"));
-		this.duration = Duration.ofMinutes(duration);
+
+		setFormatedDateAndDuration(day, month, year, duration);
 
 		Reservation reservation = new Reservation();
 		reservation.setStartDate(startdate);
 		reservation.setDuration(this.duration);
 		reservation.setCourtType(CourtType.valueOf(courtType));
 		return reservation;
+	}
+
+	private void setFormatedDateAndDuration(int day, int month, int year, int duration) {
+		this.startdate = ZonedDateTime.of(year, month, day, 0, 0, 0,
+			0, ZoneId.of("+00:00"));
+		this.duration = Duration.ofMinutes(duration);
 	}
 
 	private void createReservation(Reservation reservation) throws Throwable {
@@ -78,15 +80,16 @@ public class ReservationStepDefs {
 	public void theReservationIsCreatedOnForMinutesWithCourtType(int day, int month, int year,
 																 int duration,
 																 String courtType) throws Throwable {
+		setFormatedDateAndDuration(day, month, year, duration);
 		stepDefs.result = stepDefs.mockMvc.perform(
 			get(RESERVATIONS_URI + "/{id}", reservationId)
 				.accept(MediaType.APPLICATION_JSON)
 				.with(authenticate()))
-			.andDo(print())
 			.andExpect(jsonPath("$.id", is(reservationId)))
 			.andExpect(jsonPath("$.duration", is(this.duration.toString())))
 			.andExpect(jsonPath("$.startDate", is(parseDate(startdate.toString()))))
-			.andExpect(jsonPath("$.courtType", is(courtType)));
+			.andExpect(jsonPath("$.courtType", is(courtType)))
+			.andDo(print());
 
 	}
 
@@ -125,7 +128,7 @@ public class ReservationStepDefs {
 		Court court = courtRepository.findOne(1);
 		String message = COURTS_URI + "/" + court.getId();
 		stepDefs.result = stepDefs.mockMvc.perform(
-			put(RESERVATIONS_URI + "/1/court")
+			put(RESERVATIONS_URI + "/{id}/court", reservationId)
 				.contentType(RestMediaTypes.TEXT_URI_LIST)
 				.content(message)
 				.with(authenticate()))
@@ -136,9 +139,10 @@ public class ReservationStepDefs {
 	public void theCourtIsAssignedToTheReservation() throws Throwable {
 		Court court = courtRepository.findOne(1);
 		stepDefs.mockMvc.perform(
-			get(RESERVATIONS_URI + "/1/court")
+			get(RESERVATIONS_URI + "/{id}/court", reservationId)
 				.accept(MediaType.APPLICATION_JSON)
 				.with(authenticate()))
+			.andExpect(jsonPath("$.id", is(court.getId())))
 			.andExpect(jsonPath("$.available", is(court.isAvailable())))
 			.andExpect(jsonPath("$.indoor", is(court.isIndoor())))
 			.andDo(print());
