@@ -25,6 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ReservationStepDefs {
 
 	public static final String INDOOR = "indoor";
+	public static final String RESERVATIONS_URI = "/reservations";
+	public static final String COURTS_URI = "/courts";
 	@Autowired
 	private StepDefs stepDefs;
 	private ZonedDateTime startdate;
@@ -35,6 +37,7 @@ public class ReservationStepDefs {
 	private Court court = new Court();
 	private Reservation reservation;
 	private boolean isIndoor;
+	private final int id = 1;
 
 	@When("^I make a reservation on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
 	public void iMakeAReservationOnForMinutesWithCourtType(int day, int month, int year, int duration, String courtType) throws Throwable {
@@ -58,7 +61,7 @@ public class ReservationStepDefs {
 	private void createReservation(Reservation reservation) throws Throwable {
 		String message = stepDefs.mapper.writeValueAsString(reservation);
 		stepDefs.result = stepDefs.mockMvc.perform(
-			post("/reservations")
+			post(RESERVATIONS_URI)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(message)
 				.accept(MediaType.APPLICATION_JSON)
@@ -68,40 +71,37 @@ public class ReservationStepDefs {
 
 
 	@And("^The reservation is created on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
-	public void theReservationIsCreatedOnForMinutesWithCourtType(int day, int month, int year, int duration, String courtType) throws Throwable {
-		int id = 1;
-
-		startdate = ZonedDateTime.of(year, month, day, 0, 0, 0,
-			0, ZoneId.of("+00:00"));
-		this.duration = Duration.ofMinutes(duration);
-
+	public void theReservationIsCreatedOnForMinutesWithCourtType(int day, int month, int year,
+																 int duration,
+																 String courtType) throws Throwable {
 		stepDefs.result = stepDefs.mockMvc.perform(
-			get("/reservations/{id}", id)
+			get(RESERVATIONS_URI + "/{id}", id)
 				.accept(MediaType.APPLICATION_JSON)
 				.with(authenticate()))
 			.andDo(print())
 			.andExpect(jsonPath("$.id", is(id)))
 			.andExpect(jsonPath("$.duration", is(this.duration.toString())))
-			.andExpect(jsonPath("$.startDate", is(parseData(startdate.toString()))))
+			.andExpect(jsonPath("$.startDate", is(parseDate(startdate.toString()))))
 			.andExpect(jsonPath("$.courtType", is(courtType)));
 
 	}
 
-	private String parseData(String data) {
-		String[] parts = data.split(":");
-		return parts[0] + ":00:00" + data.substring(data.length() - 1);
+	private String parseDate(String date) {
+		String[] parts = date.split(":");
+		return parts[0] + ":00:00" + date.substring(date.length() - 1);
 	}
 
 	@And("^The reservation can't be created$")
 	public void theReservationCanTBeCreated() throws Throwable {
 		stepDefs.result = stepDefs.mockMvc.perform(
-			get("/reservations/1")
+			get(RESERVATIONS_URI + "/{id}",id)
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isNotFound());
 	}
 
 	@And("^There is a reservation on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
-	public void thereIsAReservationOnForMinutesWithCourtType(int day, int month, int year, int duration,
+	public void thereIsAReservationOnForMinutesWithCourtType(int day, int month, int year,
+															 int duration,
 															 String courtType) throws Throwable {
 		Reservation reservation = makeNewReservation(day, month, year, duration, courtType);
 		createReservation(reservation);
@@ -117,9 +117,9 @@ public class ReservationStepDefs {
 
 	@When("^I assign the court to the reservation$")
 	public void iAssignTheCourtToTheReservation() throws Throwable {
-		String message = "/courts/1";
+		String message = COURTS_URI + "/" + id;
 		stepDefs.result = stepDefs.mockMvc.perform(
-			put("/reservations/1/court")
+			put(RESERVATIONS_URI + "/1/court")
 				.contentType(RestMediaTypes.TEXT_URI_LIST)
 				.content(message)
 				.with(authenticate()))
@@ -129,7 +129,7 @@ public class ReservationStepDefs {
 	@And("^The court is assigned to the reservation$")
 	public void theCourtIsAssignedToTheReservation() throws Throwable {
 		stepDefs.mockMvc.perform(
-			get("/reservations/1/court")
+			get(RESERVATIONS_URI + "/1/court")
 				.accept(MediaType.APPLICATION_JSON)
 				.with(authenticate()))
 			.andExpect(jsonPath("$.available", is(court.isAvailable())))
