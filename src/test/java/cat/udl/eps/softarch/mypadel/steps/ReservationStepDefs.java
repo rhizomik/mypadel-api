@@ -8,7 +8,6 @@ import cat.udl.eps.softarch.mypadel.repository.CourtRepository;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.RestMediaTypes;
 import org.springframework.http.MediaType;
 
 import java.time.Duration;
@@ -17,7 +16,8 @@ import java.time.ZonedDateTime;
 
 import static cat.udl.eps.softarch.mypadel.steps.AuthenticationStepDefs.authenticate;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,9 +35,8 @@ public class ReservationStepDefs {
 	private Duration duration;
 	private Integer reservationId = 1;
 
-	private static final String INDOOR = "indoor";
-	private static final String RESERVATIONS_URI = "/reservations";
-	private static final String COURTS_URI = "/courts";
+	public static final String INDOOR = "indoor";
+	public static final String RESERVATIONS_URI = "/reservations";
 
 	@When("^I make a reservation on (\\d+) - (\\d+) - (\\d+) for (\\d+) minutes with CourtType \"([^\"]*)\"$")
 	public void iMakeAReservationOnForMinutesWithCourtType(int day, int month, int year,
@@ -123,37 +122,4 @@ public class ReservationStepDefs {
 		courtRepository.save(court);
 	}
 
-	@When("^I assign the court to the reservation$")
-	public void iAssignTheCourtToTheReservation() throws Throwable {
-		Court court = courtRepository.findOne(1);
-		String message = COURTS_URI + "/" + court.getId();
-		stepDefs.result = stepDefs.mockMvc.perform(
-			put(RESERVATIONS_URI + "/{id}/court", reservationId)
-				.contentType(RestMediaTypes.TEXT_URI_LIST)
-				.content(message)
-				.with(authenticate()))
-			.andDo(print());
-	}
-
-	@And("^The court is assigned to the reservation$")
-	public void theCourtIsAssignedToTheReservation() throws Throwable {
-		Court court = courtRepository.findOne(1);
-		stepDefs.mockMvc.perform(
-			get(RESERVATIONS_URI + "/{id}/court", reservationId)
-				.accept(MediaType.APPLICATION_JSON)
-				.with(authenticate()))
-			.andExpect(jsonPath("$.id", is(court.getId())))
-			.andExpect(jsonPath("$.available", is(court.isAvailable())))
-			.andExpect(jsonPath("$.indoor", is(court.isIndoor())))
-			.andDo(print());
-
-	}
-
-	@And("^The court is not assigned to the reservation$")
-	public void theCourtIsNotAssignedToTheReservation() throws Throwable {
-		stepDefs.mockMvc.perform(
-			get(RESERVATIONS_URI + "/{id}/court", reservationId)
-				.accept(MediaType.APPLICATION_JSON))
-			.andExpect(status().isNotFound());
-	}
 }
