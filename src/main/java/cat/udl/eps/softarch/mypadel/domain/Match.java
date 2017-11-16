@@ -40,6 +40,7 @@ public class Match extends UriEntity<Long> {
 	private Player matchCreator;
 
 	@OneToOne
+	@JsonIdentityReference(alwaysAsId = true)
 	private Reservation reservation;
 
 	@Override

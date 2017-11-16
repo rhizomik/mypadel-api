@@ -5,6 +5,7 @@ Feature: Cancel match
 
 	Scenario: A match has reached the deadline
 		Given I login as "testplayer@mypadel.cat" with password "password"
-		When I create a new public match on tomorrow at same time
-		Then The response code is 201
-		And It has been cancelled
+		And A public match is created with a reservation
+		When The controller acts
+		Then It has been cancelled
+		And The reservation has been cancelled
